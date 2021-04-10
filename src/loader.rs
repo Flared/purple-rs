@@ -206,5 +206,9 @@ impl_extra_handler_builder! {
     get_chat_name => GetChatNameHandler
     send_im => SendIMHandler
     chat_send => ChatSendHandler
+}
+
+#[cfg(libpurple2_14)]
+impl_extra_handler_builder! {
     get_cb_alias => GetChatBuddyAlias
 }
