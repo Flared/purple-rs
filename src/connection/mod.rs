@@ -11,14 +11,6 @@ pub mod protocol_data;
 pub use self::connections::Connections;
 pub use self::protocol_data::Handle;
 
-#[derive(Debug, Clone)]
-pub struct MsgInfo {
-    pub chat_sn: String,
-    pub author_sn: String,
-    pub text: String,
-    pub time: i64,
-}
-
 #[derive(Clone, Copy)]
 pub struct Connection(NonNull<purple_sys::PurpleConnection>);
 
@@ -66,20 +58,20 @@ impl Connection {
         }
     }
 
-    pub fn serv_got_chat_in(self, chat_input: MsgInfo) {
+    pub fn serv_got_chat_in(self, sn: &str, who: &str, message: &str, mtime: i64) {
         unsafe {
-            let c_sn = CString::new(chat_input.chat_sn).unwrap();
+            let c_sn = CString::new(sn).unwrap();
             let sn_hash = glib_sys::g_str_hash(c_sn.as_ptr() as *mut c_void);
-            let c_sender = CString::new(chat_input.author_sn).unwrap();
-            let c_text = CString::new(chat_input.text).unwrap();
+            let c_who = CString::new(who).unwrap();
+            let c_message = CString::new(message).unwrap();
 
             purple_sys::serv_got_chat_in(
                 self.0.as_ptr(),
                 sn_hash as i32,
-                c_sender.as_ptr(),
+                c_who.as_ptr(),
                 PurpleMessageFlags::PURPLE_MESSAGE_RECV,
-                c_text.as_ptr(),
-                chat_input.time as i64,
+                c_message.as_ptr(),
+                mtime,
             )
         }
     }
