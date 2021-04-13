@@ -23,6 +23,13 @@ impl<P> RegisterContext<P> {
     pub fn into_raw(mut self) -> *mut purple_sys::PurplePluginInfo {
         self.extra_info.roomlist_get_list = Some(entrypoints::roomlist_get_list_handler);
 
+        // If any protocol options have been set, they are back to front, so
+        // reverse the list now
+        unsafe {
+            self.extra_info.protocol_options =
+                glib_sys::g_list_reverse(self.extra_info.protocol_options);
+        }
+
         self.info.extra_info = Box::into_raw(self.extra_info) as *mut c_void;
 
         Box::into_raw(self.info)
@@ -38,6 +45,59 @@ impl<P> RegisterContext<P> {
         self.info.homepage = CString::new(info.homepage).unwrap().into_raw();
         self.info.actions = Some(entrypoints::actions);
         self
+    }
+
+    fn with_option(mut self, option: PrplOption) -> Self {
+        let mut list: *mut glib_sys::GList = self.extra_info.protocol_options;
+        unsafe {
+            let ptr: *mut purple_sys::PurpleAccountOption = match option.def {
+                PrplOptionValue::String(def) => purple_sys::purple_account_option_string_new(
+                    CString::new(option.text).unwrap().into_raw(),
+                    CString::new(option.key).unwrap().into_raw(),
+                    CString::new(def).unwrap().into_raw(),
+                ),
+                PrplOptionValue::Bool(def) => purple_sys::purple_account_option_bool_new(
+                    CString::new(option.text).unwrap().into_raw(),
+                    CString::new(option.key).unwrap().into_raw(),
+                    def.into(),
+                ),
+            };
+
+            purple_sys::purple_account_option_set_masked(ptr, option.masked.into());
+
+            list = glib_sys::g_list_prepend(list, glib::translate::Ptr::to(ptr));
+        }
+
+        self.extra_info.protocol_options = list;
+
+        self
+    }
+
+    pub fn with_string_option(self, name: String, key: String, def: String) -> Self {
+        self.with_option(PrplOption {
+            text: name,
+            key: key,
+            def: PrplOptionValue::String(def),
+            masked: false,
+        })
+    }
+
+    pub fn with_password_option(self, name: String, key: String, def: String) -> Self {
+        self.with_option(PrplOption {
+            text: name,
+            key: key,
+            def: PrplOptionValue::String(def),
+            masked: true,
+        })
+    }
+
+    pub fn with_bool_option(self, name: String, key: String, def: bool) -> Self {
+        self.with_option(PrplOption {
+            text: name,
+            key: key,
+            def: PrplOptionValue::Bool(def),
+            masked: false,
+        })
     }
 }
 
@@ -73,6 +133,18 @@ pub struct PrplInfo {
     pub description: String,
     pub author: String,
     pub homepage: String,
+}
+
+enum PrplOptionValue {
+    Bool(bool),
+    String(String),
+}
+
+struct PrplOption {
+    text: String,
+    key: String,
+    def: PrplOptionValue,
+    masked: bool,
 }
 
 impl Default for PrplInfo {
