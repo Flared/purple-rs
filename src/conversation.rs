@@ -138,7 +138,7 @@ impl ChatConversation {
             c_user.as_ptr(),
             c_extra_msg,
             c_extra_msg.as_ptr(),
-            flags,
+            flags.0,
             new_arrival.to_glib()
         );
         unsafe {

@@ -43,7 +43,7 @@ impl Connection {
     }
 
     pub fn set_state(self, state: crate::PurpleConnectionState) {
-        log::info!("Connection state: {:?}", state);
+        log::info!("Connection state: {:?}", state.0);
         unsafe { purple_sys::purple_connection_set_state(self.0.as_ptr(), state) };
     }
 

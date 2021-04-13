@@ -9,14 +9,12 @@ repository = "https://github.com/Flared/purple-rs"
 keywords = ["purple", "chat", "plugin"]
 categories = ["api-bindings"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-libc = "*"
-glib-sys = "*"
-glib = "*"
-purple-sys = {git = "https://github.com/flared/libpurple-rust", rev = "bdee978aead20001cf56264f857eba27c5ea7f62", version = "0.0.5"}
-serde = { version = "1.0", features = ["derive"] }
-log = "0.4.8"
-lazy_static = "1.4.0"
-paste = "0.1"
+libc = "^0"
+glib-sys = "^0"
+glib = "^0"
+purple-sys = { package = "purple-sys-flared", version = "^0" }
+serde = { version = "^1", features = ["derive"] }
+log = "^0"
+lazy_static = "^1"
+paste = "^1"
