@@ -40,6 +40,7 @@ pub mod logger;
 mod plugin;
 pub mod prpl;
 mod status_type;
+pub mod task;
 
 pub trait PrplPlugin {
     type Plugin;
@@ -58,7 +59,7 @@ macro_rules! purple_prpl_plugin {
         ) -> i32 {
             // Safe as long as called from libpurple. Should be the
             // case since this function is called by libpurple.
-            let plugin = purple::PrplPluginLoader::<$plugin>::from_raw(plugin_ptr);
+            let plugin = crate::PrplPluginLoader::<$plugin>::from_raw(plugin_ptr);
             plugin.init()
         }
     };
@@ -81,6 +82,30 @@ where
         closure(df, cond);
     }) {
         log::error!("Failure in input handler: {:?}", error);
+    }
+}
+
+pub fn timeout_add<F>(interval: u32, callback: F) -> u32
+where
+    F: Fn() -> bool + 'static,
+{
+    let user_data = Box::into_raw(Box::new(callback)) as *mut c_void;
+    unsafe { purple_sys::purple_timeout_add(interval, Some(trampoline_timeout::<F>), user_data) }
+}
+
+unsafe extern "C" fn trampoline_timeout<F>(user_data: *mut c_void) -> i32
+where
+    F: Fn() -> bool,
+{
+    match catch_unwind(|| {
+        let closure = &*(user_data as *mut F);
+        closure() as i32
+    }) {
+        Ok(r) => r,
+        Err(error) => {
+            log::error!("Failure in input handler: {:?}", error);
+            0
+        }
     }
 }
 
