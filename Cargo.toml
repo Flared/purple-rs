@@ -1,6 +1,6 @@
 [package]
 name = "purple-rs"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["isra17 <isra017@gmail.com>"]
 edition = "2018"
 license = "LGPL-3.0-or-later"
