@@ -43,6 +43,7 @@ pub extern "C" fn login<P: traits::LoginHandler>(account_ptr: *mut purple_sys::P
     };
 }
 
+#[cfg(libpurple2_14)]
 pub extern "C" fn get_cb_alias<P: traits::GetChatBuddyAlias>(
     connection_ptr: *mut purple_sys::PurpleConnection,
     id: i32,
