@@ -41,6 +41,15 @@ impl Account {
         }
     }
 
+    pub fn get_password(&self) -> Option<Cow<str>> {
+        let password_ptr = unsafe { purple_sys::purple_account_get_password(self.0) };
+        if password_ptr.is_null() {
+            None
+        } else {
+            Some(unsafe { CStr::from_ptr(password_ptr) }.to_string_lossy())
+        }
+    }
+
     pub fn is_disconnected(&self) -> bool {
         let is_disconnected = unsafe { purple_sys::purple_account_is_disconnected(self.0) };
         is_disconnected != 0

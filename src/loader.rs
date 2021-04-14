@@ -99,6 +99,14 @@ impl<P> RegisterContext<P> {
             masked: false,
         })
     }
+
+    pub fn with_password(mut self) -> Self {
+        self.extra_info.options = purple_sys::PurpleProtocolOptions(
+            self.extra_info.options.0 & !purple_sys::PurpleProtocolOptions::OPT_PROTO_NO_PASSWORD.0,
+        );
+
+        self
+    }
 }
 
 pub struct PrplPluginLoader<P: PrplPlugin>(*mut purple_sys::PurplePlugin, PhantomData<P>);
