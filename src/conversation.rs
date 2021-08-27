@@ -1,6 +1,6 @@
 use super::ffi::{AsMutPtr, AsPtr};
 use super::{Connection, PurpleConvChatBuddyFlags};
-use glib::translate::{FromGlib, ToGlib};
+use glib::translate::{FromGlib, IntoGlib};
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_void};
 use std::ptr::{null_mut, NonNull};
@@ -119,7 +119,7 @@ impl ChatConversation {
     }
 
     pub fn has_left(&mut self) -> bool {
-        FromGlib::from_glib(unsafe { purple_sys::purple_conv_chat_has_left(self.0.as_ptr()) })
+        unsafe { FromGlib::from_glib(purple_sys::purple_conv_chat_has_left(self.0.as_ptr())) }
     }
 
     pub fn add_user(
@@ -139,7 +139,7 @@ impl ChatConversation {
             c_extra_msg,
             c_extra_msg.as_ptr(),
             flags.0,
-            new_arrival.to_glib()
+            new_arrival.into_glib()
         );
         unsafe {
             purple_sys::purple_conv_chat_add_user(
@@ -147,7 +147,7 @@ impl ChatConversation {
                 c_user.as_ptr(),
                 c_extra_msg.as_ptr(),
                 flags,
-                new_arrival.to_glib(),
+                new_arrival.into_glib(),
             )
         }
         log::info!("Added user");

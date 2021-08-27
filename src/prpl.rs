@@ -1,4 +1,4 @@
-use glib::translate::{GlibPtrDefault, Stash, ToGlib, ToGlibPtr};
+use glib::translate::{GlibPtrDefault, Stash, IntoGlib, ToGlibPtr};
 use std::ffi::CStr;
 
 pub struct ChatEntry {
@@ -18,11 +18,11 @@ impl Into<ProtoChatEntry> for ChatEntry {
         ProtoChatEntry(purple_sys::proto_chat_entry {
             label: self.label.as_ptr(),
             identifier: self.identifier.as_ptr(),
-            required: self.required.to_glib(),
-            is_int: self.is_int.to_glib(),
+            required: self.required.into_glib(),
+            is_int: self.is_int.into_glib(),
             min: self.min,
             max: self.max,
-            secret: self.secret.to_glib(),
+            secret: self.secret.into_glib(),
         })
     }
 }
