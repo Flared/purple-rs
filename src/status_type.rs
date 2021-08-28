@@ -1,5 +1,5 @@
 use super::ffi::{mut_override, AsPtr};
-use glib::translate::ToGlib;
+use glib::translate::IntoGlib;
 pub use purple_sys::PurpleStatusPrimitive;
 use std::ffi::CStr;
 
@@ -17,7 +17,7 @@ impl StatusType {
                 primitive,
                 id.map_or_else(std::ptr::null_mut, |s| mut_override(s.as_ptr())),
                 name.map_or_else(std::ptr::null_mut, |s| mut_override(s.as_ptr())),
-                user_settable.to_glib(),
+                user_settable.into_glib(),
             ))
         }
     }

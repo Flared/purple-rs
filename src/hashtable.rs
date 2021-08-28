@@ -34,13 +34,15 @@ impl HashTable<&'static CStr, &str> {
     }
 
     pub fn insert(&mut self, key: &'static CStr, value: &str) -> bool {
-        FromGlib::from_glib(unsafe {
-            glib_sys::g_hash_table_insert(
-                self.0.as_ptr(),
-                key.as_ptr() as *mut c_void,
-                ToGlibPtr::<*mut c_char>::to_glib_full(value) as *mut c_void,
+        unsafe {
+            FromGlib::from_glib(
+                glib_sys::g_hash_table_insert(
+                    self.0.as_ptr(),
+                    key.as_ptr() as *mut c_void,
+                    ToGlibPtr::<*mut c_char>::to_glib_full(value) as *mut c_void,
+                )
             )
-        })
+        }
     }
 
     pub fn lookup(&self, key: &'static CStr) -> Option<&str> {
